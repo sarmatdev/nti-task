@@ -17,13 +17,15 @@
     </v-card-text>
     <v-card-subtitle>
       <div class="mb-4 headline">Matches: {{ matches }}</div>
-      <div class="headline">Execution time: ~{{ executionTime }}ms</div>
+      <div class="headline">Execution time: ~ {{ executionTime }}ms | {{ executionTime / 1000 }}s</div>
     </v-card-subtitle>
+    <Loading />
   </v-card>
 </template>
 
 <script>
 import Button from './Button';
+import Loading from './Loading'
 export default {
   data() {
     return {
@@ -32,6 +34,7 @@ export default {
   },
   components: {
     Button,
+    Loading
   },
   methods: {
     search() {

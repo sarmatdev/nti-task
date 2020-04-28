@@ -10,6 +10,7 @@ export default new Vuex.Store({
     db: [],
     matches: 0,
     executionTime: 0,
+    loading: false,
   },
   mutations: {
     setDB(state, db) {
@@ -22,34 +23,31 @@ export default new Vuex.Store({
     setExecutionTime(state, time) {
       state.executionTime = time;
     },
+    setLoading(state, loading) {
+      state.loading = loading;
+    },
   },
   actions: {
-    async loadDB({ commit, state }) {
-      if (state.db.length <= 0) {
-        const { data } = await axios.get('http://localhost:3000/strings');
-        localStorage.setItem('strings', JSON.stringify(data));
-        const db = JSON.parse(localStorage.getItem('strings'));
-        commit('setDB', db);
-      } else {
-        const db = JSON.parse(localStorage.getItem('strings'));
-        commit('setDB', db);
-      }
-    },
-    loadDB({ commit }) {
-      const db = JSON.parse(localStorage.getItem('strings'));
-      commit('setDB', db);
+    async loadDB({ commit }) {
+      const { data } = await axios.get('http://localhost:3000/strings');
+      console.log(data.length);
+      commit('setDB', data);
     },
     searchMatches({ state, commit }, query) {
+      commit('setLoading', true);
       const start = performance.now();
       // Search algorithm
       const regExp = new RegExp(`^${query}`);
       const matches = [];
       state.db.forEach((el) => {
-        if (el.toString().match(regExp) !== null) {
-          matches.push(el.toString().match(regExp));
+        const item = el.toString();
+        if (item.match(regExp) !== null) {
+          matches.push(item.match(regExp));
           commit('setMatches', matches.length);
         }
       });
+      commit('setMatches', matches.length);
+      commit('setLoading', false);
       const end = performance.now();
       const executionTime = end - start;
       commit('setExecutionTime', executionTime);
@@ -67,6 +65,9 @@ export default new Vuex.Store({
     },
     executionTime(state) {
       return Math.floor(state.executionTime);
+    },
+    loading(state) {
+      return state.loading;
     },
   },
 });
